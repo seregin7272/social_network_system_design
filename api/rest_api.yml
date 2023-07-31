@@ -1,0 +1,522 @@
+openapi: 3.0.1
+info:
+  title: nsi
+  description: API Social Network
+  version: 1.0.0
+servers:
+  - url: /api/v1
+
+security:
+  - ApiKeyAuth: [ ]
+
+paths:
+  /users/{user_id}:
+    get:
+      description: Просмотр анкеты пользователя
+      operationId: getUser
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemUser'
+        404:
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+        500:
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+
+  /users/{user_id}/friends:
+    get:
+      description: Просмотр друзей пользователя
+      operationId: getUserFriends
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            maximum: 1000
+            minimum: 0
+            type: integer
+            format: int64
+            default: 0
+        - name: offset
+          in: query
+          schema:
+            minimum: 0
+            type: integer
+            format: int64
+            default: 0
+        - name: sort
+          in: query
+          schema:
+            type: string
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ItemUser'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+
+  /users/{user_id}/dialogs:
+    get:
+      description: Просмотр диалогов пользователя
+      operationId: getUserDialoguess
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            maximum: 100
+            minimum: 0
+            type: integer
+            format: int64
+            default: 0
+        - name: offset
+          in: query
+          schema:
+            minimum: 0
+            type: integer
+            format: int64
+            default: 0
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    user_id:
+                      type: integer
+                    last_message_date:
+                      type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+  /users/{user_id}/chats:
+    get:
+      description: Просмотр чатов пользователя
+      operationId: getUserChats
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            maximum: 1000
+            minimum: 0
+            type: integer
+            format: int64
+            default: 0
+        - name: offset
+          in: query
+          schema:
+            minimum: 0
+            type: integer
+            format: int64
+            default: 0
+        - name: sort
+          in: query
+          schema:
+            type: string
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    description:
+                      type: string
+                    logo_path:
+                      type: string
+                    cnt_members:
+                      type: integer
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+
+  /posts/{post_id}/galery:
+    post:
+      description: Загрузка медиа файлов для постов
+      parameters:
+        - name: post_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - filename
+              properties:
+                filename:
+                  type: string
+                  format: binary
+        required: true
+      responses:
+        200:
+          description: ok
+          content: { }
+        default:
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+  /posts/{user_id}:
+    parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      description: Просмотр ленты постов пользователей или домашней ленты постов
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            maximum: 1000
+            minimum: 0
+            type: integer
+            format: int64
+            default: 0
+        - name: offset
+          in: query
+          schema:
+            minimum: 0
+            type: integer
+            format: int64
+            default: 0
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ItemPost'
+        default:
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+  /posts:
+    post:
+      description: Публикация поста в ленту
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemPost'
+        required: true
+      responses:
+        200:
+          description: ok
+          content: { }
+        default:
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+  /friends:
+    post:
+      description: добавление друзей
+      operationId: addFriends
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Friends'
+        required: true
+      responses:
+        200:
+          description: ok
+          content: { }
+        404:
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+        500:
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+    put:
+      description: Удаление друзей
+      operationId: removeFriends
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Friends'
+        required: true
+      responses:
+        401:
+          description: Успешно удалили
+          content: { }
+        404:
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+        500:
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+  /dialogues/{dialog_id}:
+    parameters:
+      - name: dialog_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      description: Чтение сообщений в диалогах
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            maximum: 100
+            minimum: 0
+            type: integer
+            format: int64
+            default: 0
+        - name: offset
+          in: query
+          schema:
+            minimum: 0
+            type: integer
+            format: int64
+            default: 0
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ItemPost'
+        default:
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+    post:
+      description: Отправка сообщений в диалогах
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemPost'
+        required: false
+      responses:
+        200:
+          description: ok
+          content: { }
+        default:
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+  /chats/{chat_id}:
+    parameters:
+      - name: chat_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      description: Чтение сообщений чатах
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            maximum: 100
+            minimum: 0
+            type: integer
+            format: int64
+            default: 0
+        - name: offset
+          in: query
+          schema:
+            minimum: 0
+            type: integer
+            format: int64
+            default: 0
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ItemPost'
+        default:
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+    post:
+      description: Отправка сообщений в чатах
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemPost'
+        required: false
+      responses:
+        200:
+          description: ok
+          content: { }
+        default:
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericError'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+  schemas:
+    GenericError:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int
+          readOnly: true
+        message:
+          type: string
+          readOnly: true
+      additionalProperties:
+        type: object
+        properties: { }
+    ItemUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        age:
+          type: integer
+        gender:
+          type: string
+          enum:
+            - male
+            - female
+        username:
+          type: string
+        city:
+          type: string
+        photo_path:
+          type: string
+    Friends:
+      type: object
+      properties:
+        users:
+          type: object
+    ItemPost:
+      type: object
+      properties:
+        name:
+          type: string
+        body:
+          type: string
+  parameters:
+    limit:
+      name: limit
+      in: query
+      schema:
+        maximum: 1000
+        minimum: 0
+        type: integer
+        format: int64
+        default: 0
+    offset:
+      name: offset
+      in: query
+      schema:
+        minimum: 0
+        type: integer
+        format: int64
+        default: 0
+    sort:
+      name: sort
+      in: query
+      schema:
+        type: string
+
+
