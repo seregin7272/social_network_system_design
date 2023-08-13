@@ -1,9 +1,13 @@
 
 ### PostgresSQL
+Шардирование: Key based по ID пользователя
+
+Репликация шардов master -> slave (sync)
+
+Данные:
 * анкеты людей (имя, описание, фото, город);
 * посты (описание, медиа, хэштеги,комментарии);
 
-<img src="./pg.png">
 
 ```
 // Use DBML to define your database structure
@@ -82,7 +86,10 @@ Ref: post_file.file_id > files.id
 ```
 
 ### Minio
-(фото, аудио, видео)
+Реплицируем базу данных с медиа данными: master -> slave (async)
+
+Данные: (фото, аудио, видео)
+
 ```json
 {
    "buckets": [
@@ -94,6 +101,11 @@ Ref: post_file.file_id > files.id
 
 
 ### MongoDB
+Шардирование: Key based по ID пользователя
+
+Репликация шардов master -> slave (sync)
+
+Данные:
 Лайки и просмотры постов
 
 ```json
@@ -114,6 +126,7 @@ Ref: post_file.file_id > files.id
   ]
 }
 ```
+
 Личные сообщения и чаты (только текст и прочитанность сообщений)
 
 ```json
@@ -153,11 +166,14 @@ Ref: post_file.file_id > files.id
 ```
 
 ### Neo4j
+Шардирование: Key based по (subject -> predicate -> object)  
+
+Репликация шардов master -> slave (async)
+
 * интересы
 * друзья
 * подписчики
 * любовные отношения
-
 
 ```
 [user1] - friends -> [user2]
@@ -168,4 +184,3 @@ Ref: post_file.file_id > files.id
 
 [user1] - interests -> [user2]
 ```
-
